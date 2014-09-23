@@ -23,6 +23,7 @@
     <build>
         <directory>${project.basedir}/target</directory>
         <finalName>${project.artifactId}-${project.version}</finalName>
+        <finalName>${project.artifactId}</finalName>     
             <defaultGoal>install</defaultGoal>
     		<sourceDirectory>${basedir}/src/</sourceDirectory>
     
