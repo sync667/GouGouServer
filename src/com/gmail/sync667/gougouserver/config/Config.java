@@ -14,7 +14,7 @@ public abstract class Config {
         Config.path = path;
     }
 
-    public Config getCofig() {
+    public Config getConfig() {
         return config;
     }
 }

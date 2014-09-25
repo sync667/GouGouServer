@@ -81,8 +81,8 @@ public class ServerConfig extends Config {
     }
 
     private void set() {
-        if (!entrys.containsKey("ServerName")) {
-            entrys.put("ServerName", "Default Server");
+        if (!entrys.containsKey("ServerMOTD")) {
+            entrys.put("ServerMOTD", "Default Server");
         }
         if (!entrys.containsKey("ServerIP")) {
             entrys.put("ServerIP", "127.0.0.1");
