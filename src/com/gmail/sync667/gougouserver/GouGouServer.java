@@ -27,7 +27,7 @@ import com.gmail.sync667.gougouserver.server.packets.Packet10EntityMove;
 
 public class GouGouServer extends Thread {
 
-    public String VERSION = "ALPHA-0.1 Build 5";
+    public String VERSION = "ALPHA-0.1 Build 6";
     public int PROTOCOL_VERSION = 1;
     private DatagramSocket socket;
     public static GouGouServer server;
@@ -161,6 +161,14 @@ public class GouGouServer extends Thread {
                     }
 
                 }
+
+                for (Entity e : entities) {
+                    server.sendData(
+                            ipAddress,
+                            port,
+                            new Packet06SpawnEntity(ipAddress, port, e.entityId, e.x, e.y, e.getName(), e
+                                    .getPlayerName()).getData());
+                }
                 entities.add(new Player(entityId, 0, 0, packet02.getUsername(), ipAddress, port));
                 server.sendData(ipAddress, port, new Packet03Connect(ipAddress, port, entityId).getData());
                 server.sendData(ipAddress, port, new Packet05SpawnPosition(ipAddress, port, spawnX, spawnY).getData());
@@ -212,9 +220,14 @@ public class GouGouServer extends Thread {
                             moved = true;
                         }
 
+                        if (e.getMovingDir() != packet10.getMovingDir()) {
+                            e.setMovingDir(packet10.getMovingDir());
+                            moved = true;
+                        }
+
                         if (moved) {
-                            server.sendDataToAllPlayers(new Packet10EntityMove(null, 0, e.getEntityId(), e.x, e.y)
-                                    .getData());
+                            server.sendDataToAllPlayers(new Packet10EntityMove(null, 0, e.getEntityId(), e.x, e.y, e
+                                    .getMovingDir()).getData());
                         }
                         break;
                     }

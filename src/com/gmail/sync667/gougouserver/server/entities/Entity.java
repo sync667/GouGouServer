@@ -29,5 +29,11 @@ public abstract class Entity {
 
     public abstract void setSpeed(int speed);
 
+    public abstract String getName();
+
+    public abstract int getMovingDir();
+
+    public abstract void setMovingDir(int movingDir);
+
     public abstract String getPlayerName();
 }

@@ -1,6 +1,5 @@
 package com.gmail.sync667.gougouserver.server.entities;
 
-
 public abstract class Mob extends Entity {
 
     protected String name;
@@ -24,8 +23,18 @@ public abstract class Mob extends Entity {
 
     public abstract boolean hasCollided(int xa, int ya);
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
+    public int getMovingDir() {
+        return movingDir;
+    }
+
+    @Override
+    public void setMovingDir(int movingDir) {
+        this.movingDir = movingDir;
+    }
 }

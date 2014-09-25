@@ -9,6 +9,7 @@ public class Packet10EntityMove extends Packet {
     private int entityId;
     private int x;
     private int y;
+    private int movingDir;
 
     /**
      * @param parsed
@@ -23,10 +24,12 @@ public class Packet10EntityMove extends Packet {
             this.entityId = Integer.valueOf(dataArray[0]);
             this.x = Integer.valueOf(dataArray[1]);
             this.y = Integer.valueOf(dataArray[2]);
+            this.movingDir = Integer.valueOf(dataArray[3]);
         } catch (NumberFormatException e) {
             this.entityId = 0;
             this.x = 0;
             this.y = 0;
+            this.movingDir = 0;
         }
     }
 
@@ -34,13 +37,15 @@ public class Packet10EntityMove extends Packet {
      * @param entityId
      * @param x
      * @param y
+     * @param movingDir
      */
-    public Packet10EntityMove(InetAddress senderIp, int port, int entityId, int x, int y) {
+    public Packet10EntityMove(InetAddress senderIp, int port, int entityId, int x, int y, int movingDir) {
         super(10, senderIp, port);
 
         this.entityId = entityId;
         this.x = x;
         this.y = y;
+        this.movingDir = movingDir;
 
     }
 
@@ -51,7 +56,7 @@ public class Packet10EntityMove extends Packet {
 
     @Override
     public byte[] getData() {
-        return ("10" + this.entityId + "/" + x + "/" + y).getBytes();
+        return ("10" + this.entityId + "/" + x + "/" + y + "/" + movingDir).getBytes();
     }
 
     public int getEntityId() {
@@ -64,6 +69,10 @@ public class Packet10EntityMove extends Packet {
 
     public int getY() {
         return y;
+    }
+
+    public int getMovingDir() {
+        return movingDir;
     }
 
 }
