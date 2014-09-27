@@ -3,10 +3,11 @@ package com.gmail.sync667.gougouserver.log;
 import java.io.BufferedWriter;
 import java.io.Console;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
@@ -38,43 +39,36 @@ public class ConsoleLogger {
             try {
                 log.createNewFile();
             } catch (IOException e) {
-                infoC("Failed to create log file! Stopping...");
-                GouGouServer.getServer().stop();
+                infoC("Failed to create log file!");
                 return;
             }
         }
-        try (BufferedWriter writer = Files.newBufferedWriter(logPath, ENCODING)) {
-            writer.write(message + "\n");
-            // writer.newLine();
-
+        try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(log, true)))) {
+            out.println(message);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     public void info(String message) {
-        logger.info(message + "\n");
-        logFile(message);
+        logger.info(message.trim() + "\n");
+        logFile(message.trim());
     }
 
     public void warning(String message) {
-        logger.warning(message + "\n");
-        logFile(message);
+        logger.warning(message.trim() + "\n");
+        logFile(message.trim());
     }
 
     public void severe(String message) {
-        logger.severe(message + "\n");
-        logFile(message);
+        logger.severe(message.trim() + "\n");
+        logFile(message.trim());
     }
 
     public void infoC(String message) {
-        if (console == null) {
-            warning("Console class is null! Do not use infoC() for out.");
-            info(message);
-            return;
-        }
-        console.printf(message + "\n");
-        logFile(message);
+        console.printf(message.trim() + "\n");
+        logFile(message.trim());
     }
 
 }

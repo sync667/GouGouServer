@@ -12,7 +12,7 @@ import java.util.Random;
 import com.gmail.sync667.gougouserver.config.ServerConfig;
 import com.gmail.sync667.gougouserver.log.ConsoleLogger;
 import com.gmail.sync667.gougouserver.server.entities.Entity;
-import com.gmail.sync667.gougouserver.server.entities.Player;
+import com.gmail.sync667.gougouserver.server.entities.player.Player;
 import com.gmail.sync667.gougouserver.server.packets.Packet;
 import com.gmail.sync667.gougouserver.server.packets.Packet.PacketTypes;
 import com.gmail.sync667.gougouserver.server.packets.Packet00HandShakeClient;
@@ -27,8 +27,8 @@ import com.gmail.sync667.gougouserver.server.packets.Packet10EntityMove;
 
 public class GouGouServer extends Thread {
 
-    public String VERSION = "ALPHA-0.1 Build 6";
-    public int PROTOCOL_VERSION = 1;
+    public String VERSION = "ALPHA-0.1 Build 7";
+    public int PROTOCOL_VERSION = 2;
     private DatagramSocket socket;
     public static GouGouServer server;
     public static ConsoleLogger console;
@@ -66,7 +66,8 @@ public class GouGouServer extends Thread {
         } catch (NumberFormatException e) {
             e.printStackTrace();
         } catch (SocketException e) {
-            e.printStackTrace();
+            console.infoC("Failed to bind socket! Port is already used!");
+            return;
         }
 
         console.infoC("Server started on " + serverConfig.getEntry("ServerIP") + ":" + port);
@@ -103,8 +104,9 @@ public class GouGouServer extends Thread {
                 e.printStackTrace();
             }
             String message = new String(packet.getData());
-            console.info("CLIENT < " + message);
-
+            if (!message.startsWith("10")) {
+                console.info("CLIENT > SERVER [" + message + "]");
+            }
             parsePacket(packet.getData(), packet.getAddress(), packet.getPort());
         }
     }
@@ -138,54 +140,66 @@ public class GouGouServer extends Thread {
                 break;
             case LOGIN:
                 Packet02Login packet02 = new Packet02Login(ipAddress, port, data);
-
                 for (Entity e : entities) {
-                    if (e.getPlayerName() != null) {
-                        if (e.getPlayerName().equals(packet02.getUsername())) {
-                            server.sendData(ipAddress, port, new Packet04Disconnect(ipAddress, port, 0,
-                                    "Taki gracz jest juz podlaczony!").getData());
-                            break;
+                    if (e != null) {
+                        if (e.getPlayerName() != null) {
+                            if (e.getPlayerName().equalsIgnoreCase(packet02.getUsername())) {
+                                server.sendData(ipAddress, port, new Packet04Disconnect(ipAddress, port, 0,
+                                        "Taki gracz jest juz podlaczony!").getData());
+                                break;
+                            }
                         }
                     }
                 }
 
                 int entityId = 0;
                 boolean randoming = true;
+                int indexR = 0;
                 while (randoming) {
+                    indexR++;
                     randoming = false;
-                    entityId = new Random().nextInt(10000);
+                    entityId = new Random().nextInt((10000 - 1) + 1) + 1;
                     for (Entity e : entities) {
-                        if (e.getEntityId() == entityId) {
-                            randoming = true;
+                        if (e != null) {
+                            if (e.getEntityId() == entityId) {
+                                randoming = true;
+                            }
                         }
+                    }
+                    if (indexR > 100) {
+                        randoming = false;
+                        console.warning("Error on randoming entityId!");
+                        break;
                     }
 
                 }
 
                 for (Entity e : entities) {
-                    server.sendData(
-                            ipAddress,
-                            port,
-                            new Packet06SpawnEntity(ipAddress, port, e.entityId, e.x, e.y, e.getName(), e
-                                    .getPlayerName()).getData());
+                    if (e != null && e.entityId != entityId) {
+                        server.sendData(ipAddress, port, new Packet06SpawnEntity(ipAddress, port, e.entityId, e.x, e.y,
+                                e.getName(), e.getPlayerName()).getData());
+                    }
                 }
+
                 entities.add(new Player(entityId, 0, 0, packet02.getUsername(), ipAddress, port));
                 server.sendData(ipAddress, port, new Packet03Connect(ipAddress, port, entityId).getData());
                 server.sendData(ipAddress, port, new Packet05SpawnPosition(ipAddress, port, spawnX, spawnY).getData());
-                server.sendDataToAllPlayers(new Packet06SpawnEntity(null, (short) 0, entityId, spawnX, spawnY, "Gracz",
-                        packet02.getUsername()).getData());
                 players++;
+                server.sendDataToAllPlayers(new Packet06SpawnEntity(null, 0, entityId, spawnX, spawnY, "Gracz",
+                        packet02.getUsername()).getData());
+                console.info("[" + ipAddress + ":" + port + "] " + packet02.getUsername() + " join to the game!");
                 break;
             case CONNECT:
                 break;
             case DISCONNECT:
                 Packet04Disconnect packet04 = new Packet04Disconnect(ipAddress, port, data);
-
+                String username = "";
                 if (packet04.getEntityId() != 0) {
                     int index = 0;
                     for (Entity e : entities) {
                         index++;
                         if (e.entityId == packet04.getEntityId()) {
+                            username = e.getPlayerName();
                             break;
                         }
                     }
@@ -196,6 +210,7 @@ public class GouGouServer extends Thread {
                                 .getData());
 
                         players--;
+                        console.info("[" + ipAddress + ":" + port + "] " + username + " leave to the game!");
                     }
                 }
                 break;
@@ -252,7 +267,9 @@ public class GouGouServer extends Thread {
     public void sendData(InetAddress ipAddress, int port, byte[] data) {
         DatagramPacket packet = new DatagramPacket(data, data.length, ipAddress, port);
         String message = new String(packet.getData());
-        console.info("SERVER > " + message);
+        if (!message.startsWith("10")) {
+            console.info("SERVER > CLIENT [" + message + "]");
+        }
         try {
             socket.send(packet);
         } catch (IOException e) {

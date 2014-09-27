@@ -1,6 +1,8 @@
-package com.gmail.sync667.gougouserver.server.entities;
+package com.gmail.sync667.gougouserver.server.entities.player;
 
 import java.net.InetAddress;
+
+import com.gmail.sync667.gougouserver.server.entities.Mob;
 
 public class Player extends Mob {
 
