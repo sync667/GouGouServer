@@ -3,14 +3,12 @@ GouGou Server
 
 Server for GouGou.
 
-Jenkins CI
-http://pl.kwadratowakraina.pl:8080/job/GouGouServer/
 
 #Starting server
 
 ##Windows
 1. As a prerequisite, install Java 7 or above if you don't have it already (from Java.com).
-2. Download the latest build from http://pl.kwadratowakraina.pl:8080/job/GouGouServer/.
+2. Download the latest build 
 3. Place the file in a new directory dedicated to GouGouServer.
 4. Create a new startup script (start.bat) to launch the the JAR:
 ```
@@ -23,7 +21,7 @@ pause
 
 ##Linux
 1. As a prerequisite, install Java 7 or above if you don't have it already [Ubuntu https://help.ubuntu.com/community/Java, CentOS http://stackoverflow.com/a/20901970].
-2. Download the latest build from http://pl.kwadratowakraina.pl:8080/job/GouGouServer/.
+2. Download the latest build 
 3. Place the file in a new directory dedicated to GouGouServer.
 4. Create a new startup script (start.sh) to launch the the JAR:
 ```
